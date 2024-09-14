@@ -1,1 +1,0 @@
-# udacity-project-data-lakes
