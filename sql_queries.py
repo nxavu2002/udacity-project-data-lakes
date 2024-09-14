@@ -59,7 +59,7 @@ staging_songs_table_create = (""" CREATE TABLE IF NOT EXISTS staging_songs (
 """)
 
 songplay_table_create = (""" CREATE TABLE songplays (
-  songplay_id INT  DEFAULT nextval('songplays_seq') NOT NULL PRIMARY KEY,
+  songplay_id INT IDENTITY(0,1) PRIMARY KEY,
   start_time TIMESTAMP,
   user_id VARCHAR,
   level VARCHAR,
@@ -117,19 +117,19 @@ time_table_create = (""" CREATE TABLE IF NOT EXISTS time (
 
 staging_events_copy = (""" copy staging_events from {}
 iam_role {}
-region 'us-west-2'
+region 'us-east-1'
 FORMAT AS JSON {};
 """).format(LOG_DATA, ARN, LOG_JSONPATH)
 
 staging_songs_copy = (""" copy staging_songs from {}
 iam_role {}
-region 'us-west-2'
+region 'us-east-1'
 FORMAT AS JSON 'auto'
 """).format(SONG_DATA,ARN)
 
 # FINAL TABLES
 
-songplay_table_insert = (""" INSERT INTO songplay (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
+songplay_table_insert = (""" INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
 SELECT TIMESTAMP 'epoch' + (ts / 1000) * INTERVAL '1 second' AS start_time,
     userId as user_id,
     level,
@@ -144,16 +144,17 @@ ON se.artist = ss.artist_name AND se.song = ss.title
 WHERE se.page ='NextSong'
 """)
 
-user_table_insert = (""" INSERT INTO user (user_id, first_name, last_name, gender, level)
+user_table_insert = (""" INSERT INTO users (user_id, first_name, last_name, gender, level)
 SELECT DISTINCT userId as  user_id,
     firstName as first_name,
     lastName as last_name,
     gender,
     level
 FROM staging_events
+WHERE page='NextSong'
 """)
 
-song_table_insert = (""" INSERT INTO song (song_id, title, artist_id, year, duration)
+song_table_insert = (""" INSERT INTO songs (song_id, title, artist_id, year, duration)
 SELECT DISTINCT song_id,
     title,
     artist_id,
@@ -162,7 +163,7 @@ SELECT DISTINCT song_id,
 FROM staging_songs
 """)
 
-artist_table_insert = (""" INSERT INTO artist (artist_id, name, location, latitude, longitude)
+artist_table_insert = (""" INSERT INTO artists (artist_id, name, location, latitude, longitude)
 SELECT DISTINCT artist_id,
     artist_name as name,
     artist_location as location,
@@ -172,13 +173,16 @@ FROM staging_songs
 """)
 
 time_table_insert = (""" INSERT INTO time (start_time, hour, day, week, month, year, weekday)
-SELECT DISTINCT date(ts) as start_time
-    EXTRACT(hour FROM ts) as hour
-    EXTRACT(day FROM ts) as day
-    EXTRACT(week FROM ts) as week
-    EXTRACT(month FROM ts) as month
-    EXTRACT(year FROM ts) as year
-    CASE WHEN EXTRACT(ISODOW FROM payment_date) IN (6, 7) THEN true ELSE false END weekday
+SELECT DISTINCT
+        TIMESTAMP 'epoch' + ts/1000 * INTERVAL '1 second' AS start_time,
+        EXTRACT(hour FROM start_time)       AS hour,
+        EXTRACT(day FROM start_time)        AS day,
+        EXTRACT(week FROM start_time)       AS week,
+        EXTRACT(month FROM start_time)      AS month,
+        EXTRACT(year FROM start_time)       AS year,
+        EXTRACT(weekday FROM start_time)    AS weekday
+FROM staging_events
+WHERE ts IS NOT NULL
 """) 
 
 # QUERY LISTS
