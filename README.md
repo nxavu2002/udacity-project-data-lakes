@@ -19,8 +19,7 @@
         ** songs: (song_id, title, artist_id, year, duration)
         ** artists: (artist_id, name, location, latitude, longitude)
         ** time: (start_time, hour, day, week, month, year, weekday)
-    [![Schema](./Schema.png)](https://github.com/nxavu2002/udacity-project-data-lakes/blob/main/Schema.png)
-
+![Schema](https://github.com/user-attachments/assets/61142834-b7a5-49a3-9185-8a9cd4f50bc9)
 ## ETL pipelines
 
     1. Run create_tables.py to create staging, fact, dimension table.
