@@ -19,7 +19,7 @@
         ** songs: (song_id, title, artist_id, year, duration)
         ** artists: (artist_id, name, location, latitude, longitude)
         ** time: (start_time, hour, day, week, month, year, weekday)
-    <img src="./schema.png">
+    ![Schema](./Schema.png)
 
 ## ETL pipelines
 
