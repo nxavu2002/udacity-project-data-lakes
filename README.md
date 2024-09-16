@@ -1,4 +1,3 @@
-# Project: Data Warehouse
 
 ## Quickstart
     * Create an AWS S3 bucket.
