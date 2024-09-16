@@ -27,4 +27,6 @@
     2. Run etl.py to load data to staging and insert data to fact, dimension tables.
 
 ## Summary
-    Project is designed to build ETL pipeline that extracts data from S3, stages them in Redshift, and transforms data into fact table and dimension tables for their analytics team to continue finding insights into what songs their users are listening to.
+    Project is designed to build ETL pipeline that extracts data from S3, stages them in Redshift, 
+    and transforms data into fact table and dimension tables for their analytics team to continue finding
+    insights into what songs their users are listening to.
